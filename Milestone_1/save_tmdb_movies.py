@@ -9,16 +9,22 @@ sys.setdefaultencoding('utf8')
 
 
 def main():
+    start_time = time.time()
+
     tmdb.API_KEY = 'a995a7fe53e021d77d82b99428850ff1'
 
     discover = tmdb.Discover()
 
+    start_page = 1
     num_pages = 1000
-    for page in xrange(1, num_pages + 1): # 186
-        if page != 1:
+
+    for page in xrange(start_page, num_pages + 1):
+        if page != start_page:
             time.sleep(7)
 
-        print page
+        elapsed_mins = (time.time() - start_time) / 60.0
+
+        print 'page: %d, elapsed mins: %.2f' % (page, elapsed_mins)
         discover_result = discover.movie(page=page, sort_by='popularity.desc')
 
         movies = discover_result['results']
@@ -33,10 +39,10 @@ def main():
             except HTTPError as e:
                 print str(e)
 
-    df = pd.DataFrame(row_list)
+        df = pd.DataFrame(row_list)
 
-    with open('tmdb_movies.csv', 'a') as csv_file:
-        df.to_csv(csv_file, header=False, index=False)
+        with open('tmdb_movies.csv', 'a') as csv_file:
+            df.to_csv(csv_file, header=False, index=False)
 
 
 if __name__ == '__main__':
