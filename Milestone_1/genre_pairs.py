@@ -16,7 +16,7 @@ TMDB_MOVIES_COLUMN_NAMES = [
 
 
 def load_tmdb_movies():
-    df = pd.read_csv('tmdb_movies_11291.csv', header=None, names=TMDB_MOVIES_COLUMN_NAMES)
+    df = pd.read_csv('tmdb_movies_11291.csv', header=None, names=TMDB_MOVIES_COLUMN_NAMES, encoding="utf-8")
     for column_name in ['genres', 'spoken_languages']:
         df[column_name] = df[column_name].map(lambda d: ast.literal_eval(d))
     return df
