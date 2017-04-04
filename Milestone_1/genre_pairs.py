@@ -1,13 +1,11 @@
 import ast
+import operator
 from collections import Counter
 
 import matplotlib.pyplot as plt
 import numpy as np
-import operator
 import pandas as pd
-
-# reload(sys)
-# sys.setdefaultencoding('utf8')
+from IPython.display import display
 
 TMDB_MOVIES_COLUMN_NAMES = [
     'adult', 'backdrop_path', 'belongs_to_collection', 'budget', 'genres', 'homepage', 'id', 'imdb_id',
@@ -92,17 +90,32 @@ def explore_genre_pairs(tmdb_movies_df):
                 pair_list.append(k1)
                 pair_list.append(k2)
 
-    # counter = Counter(genre_list)
+    genre_counter = Counter(genre_list)
 
-    # sorted_counter_items = sorted(counter.items(), key=operator.itemgetter(1), reverse=True)
-    # for k in sorted_counter_items:
-    #     print '%s: %d' % (k[0], k[1])
+    sorted_counter_items = sorted(genre_counter.items(), key=operator.itemgetter(1), reverse=True)
+    sorted_genres = [i[0] for i in sorted_counter_items]
+
+    pair_counter = Counter(pair_list)
 
     print len(pair_list)
-    pair_counter = Counter(pair_list)
     print pair_counter.most_common(10)
     print pair_counter.most_common()[-10:-1]
     print len(pair_counter)
+
+    num_genres = len(sorted_genres)
+    pair_matrix = np.full((num_genres, num_genres), -1, dtype=np.int)
+
+    for i in xrange(len(sorted_genres)):
+        g1 = sorted_genres[i]
+        for j in xrange(i + 1, len(sorted_genres)):
+            g2 = sorted_genres[j]
+            count = pair_counter[g1 + ":" + g2]
+            pair_matrix[i, j] = count
+            pair_matrix[j, i] = count
+
+    pair_df = pd.DataFrame(pair_matrix, columns=sorted_genres, index=sorted_genres)
+
+    display(pair_df)
 
 
 def main():
