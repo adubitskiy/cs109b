@@ -42,7 +42,7 @@ def main():
         df = pd.DataFrame(row_list)
 
         with open('tmdb_movies.csv', 'a') as csv_file:
-            df.to_csv(csv_file, header=False, index=False)
+            df.to_csv(csv_file, header=False, index=False, encoding='utf-8')
 
 
 if __name__ == '__main__':
