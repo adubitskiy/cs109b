@@ -74,13 +74,13 @@ def explore_genre_counts(tmdb_movies_df):
         print '%s: %.1f%%' % (k[0], k[1] * 100.0)
 
 
-def explore_genre_pairs(tmdb_movies_df):
-    genres_rows = tmdb_movies_df['genres']
+def get_genre_list(genres_rows):
+    return [genre['name'] for genres in genres_rows for genre in genres]
+
+
+def get_pair_list(genres_rows):
     pair_list = []
-    genre_list = []
     for genres in genres_rows:
-        for genre in genres:
-            genre_list.append(genre['name'])
         for i1 in xrange(len(genres) - 1):
             g1 = genres[i1]['name']
             for i2 in xrange(i1 + 1, len(genres)):
@@ -89,11 +89,35 @@ def explore_genre_pairs(tmdb_movies_df):
                 k2 = g2 + ':' + g1
                 pair_list.append(k1)
                 pair_list.append(k2)
+    return pair_list
 
+
+def get_pair_matrix(pair_counter, sorted_genres):
+    num_genres = len(sorted_genres)
+    pair_matrix = np.full((num_genres, num_genres), 0, dtype=np.int)
+    for i in xrange(len(sorted_genres)):
+        g1 = sorted_genres[i]
+        for j in xrange(i + 1, len(sorted_genres)):
+            g2 = sorted_genres[j]
+            count = pair_counter[g1 + ":" + g2]
+            pair_matrix[i, j] = count
+            pair_matrix[j, i] = count
+    return pair_matrix
+
+
+def get_sorted_genres(genre_list):
     genre_counter = Counter(genre_list)
-
     sorted_counter_items = sorted(genre_counter.items(), key=operator.itemgetter(1), reverse=True)
     sorted_genres = [i[0] for i in sorted_counter_items]
+    return sorted_genres
+
+
+def explore_genre_pairs(tmdb_movies_df):
+    genres_rows = tmdb_movies_df['genres']
+    genre_list = get_genre_list(genres_rows)
+    pair_list = get_pair_list(genres_rows)
+
+    sorted_genres = get_sorted_genres(genre_list)
 
     pair_counter = Counter(pair_list)
 
@@ -102,27 +126,38 @@ def explore_genre_pairs(tmdb_movies_df):
     print pair_counter.most_common()[-10:-1]
     print len(pair_counter)
 
-    num_genres = len(sorted_genres)
-    pair_matrix = np.full((num_genres, num_genres), -1, dtype=np.int)
-
-    for i in xrange(len(sorted_genres)):
-        g1 = sorted_genres[i]
-        for j in xrange(i + 1, len(sorted_genres)):
-            g2 = sorted_genres[j]
-            count = pair_counter[g1 + ":" + g2]
-            pair_matrix[i, j] = count
-            pair_matrix[j, i] = count
+    pair_matrix = get_pair_matrix(pair_counter, sorted_genres)
 
     pair_df = pd.DataFrame(pair_matrix, columns=sorted_genres, index=sorted_genres)
 
     display(pair_df)
 
 
+def calculate_conditional_probabilities(tmdb_movies_df):
+    genres_rows = tmdb_movies_df['genres']
+    genre_list = get_genre_list(genres_rows)
+    pair_list = get_pair_list(genres_rows)
+
+    sorted_genres = get_sorted_genres(genre_list)
+
+    pair_counter = Counter(pair_list)
+    pair_matrix = get_pair_matrix(pair_counter, sorted_genres)
+
+    genre_counter = Counter(genre_list)
+    genre_items = [num_genres for genre, num_genres in genre_counter.most_common()]
+    genre_totals = np.array(genre_items)[:, np.newaxis]
+
+    cond_probs_matrix = 100.0 * pair_matrix / genre_totals
+    cond_probs_df = pd.DataFrame(cond_probs_matrix, columns=sorted_genres, index=sorted_genres)
+    display(cond_probs_df.round(1))
+
+
 def main():
     tmdb_movies_df = load_tmdb_movies()
     # explore_num_genres_per_movie(tmdb_movies_df)
     # explore_genre_counts(tmdb_movies_df)
-    explore_genre_pairs(tmdb_movies_df)
+    # explore_genre_pairs(tmdb_movies_df)
+    calculate_conditional_probabilities(tmdb_movies_df)
 
 
 if __name__ == '__main__':
