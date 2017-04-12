@@ -1,8 +1,9 @@
 import cPickle
 import time
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
@@ -33,9 +34,9 @@ def get_movie_df(movie_dict):
         'title', 'tagline', 'crew', 'homepage',
         'belongs_to_collection', 'original_language', 'status', 'spoken_languages',
         'adult', 'production_companies',
-        'original_title', 'cast',
+        'original_title',
 
-        'revenue', 'vote_count', 'release_date', 'popularity', 'budget', 'vote_average', 'runtime',
+        'revenue', 'vote_count', 'release_date', 'popularity', 'budget', 'vote_average', 'runtime', 'cast',
     ]
     movie_attribute_name_list = [
         'revenue',
@@ -43,6 +44,7 @@ def get_movie_df(movie_dict):
         'popularity',
         'budget',
         'vote_average',
+        'cast',
         # 'release_date',
         # 'runtime',
     ]
@@ -57,7 +59,7 @@ def get_movie_df(movie_dict):
 
 
 def explore_pca(movie_df):
-    print movie_df.describe()
+    # print movie_df.describe()
 
     scaled_movies = preprocessing.scale(movie_df)
 
@@ -72,9 +74,42 @@ def explore_pca(movie_df):
     plt.show()
 
 
+def prepare_cast(movie_df):
+    cast_list = [cast_member['name'] for movie_cast_list in movie_df['cast'] for cast_member in movie_cast_list]
+    cast_counter = Counter(cast_list)
+
+    included_cast_list = [cast_name for cast_name, num_movies in cast_counter.iteritems() if num_movies >= 5]
+    included_cast_set = set(included_cast_list)
+
+    num_movies = len(movie_df)
+    print num_movies
+    movie_attribute_dict = defaultdict(lambda: np.zeros((num_movies,), dtype=np.uint8))
+
+    for i, movie_cast_list in enumerate(movie_df['cast']):
+        for cast_member in movie_cast_list:
+            cast_name = cast_member['name']
+            if cast_name in included_cast_set:
+                movie_attribute_dict['cast_' + cast_name][i] = 1
+
+    new_movie_df = movie_df.drop("cast", axis=1)
+
+    for key, column in movie_attribute_dict.iteritems():
+        new_movie_df[key] = column
+
+    print new_movie_df.shape
+    return new_movie_df
+
+
+def prepare_columns(movie_df):
+    return prepare_cast(movie_df)
+
+
 def main():
     movie_dict = load_movie_dict()
     movie_df = get_movie_df(movie_dict)
+
+    movie_df = prepare_columns(movie_df)
+
     explore_pca(movie_df)
 
 
