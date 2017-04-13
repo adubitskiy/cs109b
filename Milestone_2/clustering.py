@@ -1,4 +1,5 @@
 import cPickle
+import random
 import time
 from collections import defaultdict, Counter
 
@@ -7,6 +8,7 @@ import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
+from sklearn.manifold import MDS
 
 
 def load_movie_dict():
@@ -45,6 +47,7 @@ def get_movie_df(movie_dict):
         'budget',
         'vote_average',
         'cast',
+        'genres',
         # 'release_date',
         # 'runtime',
     ]
@@ -78,7 +81,9 @@ def prepare_cast(movie_df):
     cast_list = [cast_member['name'] for movie_cast_list in movie_df['cast'] for cast_member in movie_cast_list]
     cast_counter = Counter(cast_list)
 
-    included_cast_list = [cast_name for cast_name, num_movies in cast_counter.iteritems() if num_movies >= 5]
+    appearances_limit = 2
+    included_cast_list = [cast_name for cast_name, num_movies in cast_counter.iteritems()
+                          if num_movies >= appearances_limit]
     included_cast_set = set(included_cast_list)
 
     num_movies = len(movie_df)
@@ -104,13 +109,56 @@ def prepare_columns(movie_df):
     return prepare_cast(movie_df)
 
 
+def get_one_genre_name(movie_genres):
+    one_genre = "Other"
+    for genre in movie_genres:
+        genre_name = genre['name']
+        if genre_name == 'Comedy' or genre_name == 'Thriller':
+            one_genre = genre_name
+            break
+    return one_genre
+
+
+def convert_genres(genres):
+    return [get_one_genre_name(movie_genres) for movie_genres in genres]
+
+
+def explore_mds(movie_df):
+    scaled_movies = preprocessing.scale(movie_df.drop('genres', axis=1))
+    genres = movie_df['genres']
+    genre_labels = np.array(convert_genres(genres))
+
+    # print genre_labels
+
+    mds = MDS(n_components=2, verbose=1, n_jobs=1, max_iter=120)
+    mds_X = mds.fit_transform(scaled_movies)
+
+    plt.figure(figsize=(10, 8))
+    comedy_indices = genre_labels == 'Comedy'
+    thriller_indices = genre_labels == 'Thriller'
+    plt.scatter(mds_X[comedy_indices, 0], mds_X[comedy_indices, 1], c='r', label='Comedy')
+    plt.scatter(mds_X[thriller_indices, 0], mds_X[thriller_indices, 1], c='g', label='Thriller')
+    plt.legend()
+    plt.suptitle("MDS for Comedy and Thriller movies")
+    plt.show()
+
+
+def get_subsample(movie_df):
+    random.seed(109)
+    return movie_df.loc[np.random.choice(movie_df.index, 1000, replace=False)]
+
+
 def main():
     movie_dict = load_movie_dict()
     movie_df = get_movie_df(movie_dict)
 
+    movie_df = get_subsample(movie_df)
+
     movie_df = prepare_columns(movie_df)
 
-    explore_pca(movie_df)
+    # explore_pca(movie_df)
+
+    explore_mds(movie_df)
 
 
 if __name__ == '__main__':
