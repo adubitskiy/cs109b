@@ -62,6 +62,7 @@ def get_movie_df(movie_dict):
 
 
 def explore_pca(movie_df):
+    movie_df = movie_df.drop('genres', axis=1)
     # print movie_df.describe()
 
     scaled_movies = preprocessing.scale(movie_df)
@@ -143,7 +144,7 @@ def explore_mds(movie_df):
     plt.show()
 
 
-def get_subsample(movie_df):
+def get_subsample(movie_df, num_movies=1000):
     random.seed(109)
     return movie_df.loc[np.random.choice(movie_df.index, 1000, replace=False)]
 
@@ -152,7 +153,7 @@ def main():
     movie_dict = load_movie_dict()
     movie_df = get_movie_df(movie_dict)
 
-    movie_df = get_subsample(movie_df)
+    movie_df = get_subsample(movie_df, num_movies=10000)
 
     movie_df = prepare_columns(movie_df)
 
