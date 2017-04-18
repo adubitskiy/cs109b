@@ -55,7 +55,7 @@ def save_subsample(movie_dict, sample_size=5000):
 
 def main():
     movie_dict = load_movie_dict()
-    save_subsample(movie_dict, sample_size=5000)
+    save_subsample(movie_dict, sample_size=10000)
 
 
 if __name__ == '__main__':
