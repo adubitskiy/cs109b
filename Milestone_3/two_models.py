@@ -85,7 +85,7 @@ def sgd(X_test, X_train, y_test, y_train, mlb_classes):
     param_grid = {
         'estimator__alpha': np.logspace(-5, -3, num=30),
     }
-    model = OneVsRestClassifier(SGDClassifier(random_state=761))
+    model = OneVsRestClassifier(SGDClassifier(class_weight='balanced', random_state=761))
     model_tuning = GridSearchCV(
         model,
         param_grid=param_grid,
@@ -102,9 +102,9 @@ def sgd(X_test, X_train, y_test, y_train, mlb_classes):
 def random_forest(X_test, X_train, y_test, y_train, mlb_classes):
     param_grid = {
         'min_samples_leaf': (1, 2, 50),
-        'max_features': ('auto', 'sqrt', 'log2', 0.2),
+        'max_features': ('auto', 0.2),
     }
-    model = RandomForestClassifier(n_estimators=50, random_state=761)
+    model = RandomForestClassifier(n_estimators=50, class_weight='balanced', random_state=761)
     model_tuning = GridSearchCV(
         model,
         param_grid=param_grid,
