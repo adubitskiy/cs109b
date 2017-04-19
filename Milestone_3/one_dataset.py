@@ -3,8 +3,10 @@ import cPickle
 import numpy as np
 import pandas as pd
 from nltk.corpus import stopwords
+from scipy import sparse
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MultiLabelBinarizer
 
 root_folder = '..'
@@ -125,18 +127,44 @@ def main():
     print len(sample_tmdb_ids)
 
     # get labels / features from the cast / crew data
-    features, y, mlb_classes, vectorizer = prepare_cast_data(tmdb_movies, cast_dict, major_genres, sample_tmdb_ids)
+    cast_features, cast_y, cast_mlb_classes, cast_vectorizer = prepare_cast_data(tmdb_movies, cast_dict, major_genres,
+                                                                                 sample_tmdb_ids)
 
-    print np.shape(features)
-    print np.shape(y)
-    print len(mlb_classes)
+    print np.shape(cast_features)
+    print np.shape(cast_y)
+    print len(cast_mlb_classes)
 
     # get labels / features from the text data
-    features, y, mlb_classes, vectorizer = prepare_text_data(tmdb_movies, plot_dict, major_genres, sample_tmdb_ids)
+    text_features, text_y, text_mlb_classes, text_vectorizer = prepare_text_data(tmdb_movies, plot_dict, major_genres,
+                                                                                 sample_tmdb_ids)
 
-    print np.shape(features)
-    print np.shape(y)
-    print len(mlb_classes)
+    print np.shape(text_features)
+    print np.shape(text_y)
+    print len(text_mlb_classes)
+
+    # split into test / train data
+    cast_F_train, cast_F_test, text_F_train, text_F_test, y_train, y_test = train_test_split(cast_features,
+                                                                                             text_features, cast_y,
+                                                                                             test_size=0.25,
+                                                                                             random_state=42)
+
+    cast_X_train = cast_vectorizer.fit_transform(cast_F_train)
+    cast_X_test = cast_vectorizer.transform(cast_F_test)
+
+    print np.shape(cast_X_train)
+    print np.shape(cast_X_test)
+
+    text_X_train = text_vectorizer.fit_transform(text_F_train)
+    text_X_test = text_vectorizer.transform(text_F_test)
+
+    print np.shape(text_X_train)
+    print np.shape(text_X_test)
+
+    X_train = sparse.hstack((cast_X_train, text_X_train))
+    X_test = sparse.hstack((cast_X_test, text_X_test))
+
+    print np.shape(X_train)
+    print np.shape(X_test)
 
 
 if __name__ == '__main__':
