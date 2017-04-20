@@ -10,7 +10,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import classification_report, accuracy_score, hamming_loss, zero_one_loss, \
-    jaccard_similarity_score, make_scorer
+    jaccard_similarity_score, make_scorer, f1_score
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -139,6 +139,11 @@ def evaluate_baseline(X_train, X_test, y_train, y_test, mlb_classes, strategy):
     print classification_report(y_test, y_test_pred, target_names=mlb_classes)
 
 
+def f1_score_f(classifier, X, y):
+    y_pred = classifier.predict(X)
+    return f1_score(y, y_pred, average='micro')
+
+
 def sgd(X_train, X_test, y_train, y_test, mlb_classes):
     param_grid = {
         'estimator__alpha': np.logspace(-5, -1, num=50),
@@ -147,7 +152,7 @@ def sgd(X_train, X_test, y_train, y_test, mlb_classes):
     model_tuning = GridSearchCV(
         model,
         param_grid=param_grid,
-        scoring=make_scorer(hamming_loss, greater_is_better=False),
+        scoring=f1_score_f,
         cv=3,
         n_jobs=2,
         verbose=1,
@@ -166,14 +171,17 @@ def sgd(X_train, X_test, y_train, y_test, mlb_classes):
 
 def random_forest(X_test, X_train, y_test, y_train, mlb_classes):
     param_grid = {
-        'min_samples_leaf': (1, 2, 50),
-        'max_features': ('auto', 0.2),
+        'min_samples_leaf': (1, 2, 5),
+        'max_features': ('auto', 0.1, 0.2),
     }
-    model = RandomForestClassifier(n_estimators=50, class_weight='balanced', random_state=761)
+    # model = RandomForestClassifier(n_estimators=50, class_weight='balanced', random_state=761)
+    model = RandomForestClassifier(n_estimators=30, random_state=761, class_weight='balanced')
+    # model = RandomForestClassifier(n_estimators=30, random_state=761, max_features=0.2, min_samples_leaf=0.01,
+    #                                verbose=3, class_weight='balanced', n_jobs=2)
     model_tuning = GridSearchCV(
         model,
         param_grid=param_grid,
-        scoring=make_scorer(hamming_loss, greater_is_better=False),
+        scoring=f1_score_f,
         cv=3,
         n_jobs=2,
         verbose=3,
