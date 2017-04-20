@@ -140,8 +140,8 @@ def main():
     print 'Test label matrix shape:', y_test.shape
     print 'Test predictor matrix shape:', X_test.shape
 
-    # sgd(X_test, X_train, y_test, y_train, mlb_classes)
-    random_forest(X_test, X_train, y_test, y_train, mlb_classes)
+    sgd(X_test, X_train, y_test, y_train, mlb_classes)
+    # random_forest(X_test, X_train, y_test, y_train, mlb_classes)
 
 
 if __name__ == '__main__':

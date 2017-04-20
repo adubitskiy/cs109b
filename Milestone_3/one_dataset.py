@@ -5,10 +5,14 @@ import pandas as pd
 from nltk.corpus import stopwords
 from scipy import sparse
 from sklearn.dummy import DummyClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import classification_report, accuracy_score, hamming_loss, zero_one_loss, jaccard_similarity_score
-from sklearn.model_selection import train_test_split
+from sklearn.linear_model import SGDClassifier
+from sklearn.metrics import classification_report, accuracy_score, hamming_loss, zero_one_loss, \
+    jaccard_similarity_score, make_scorer
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import MultiLabelBinarizer
 
 root_folder = '..'
@@ -135,6 +139,54 @@ def evaluate_baseline(X_train, X_test, y_train, y_test, mlb_classes, strategy):
     print classification_report(y_test, y_test_pred, target_names=mlb_classes)
 
 
+def sgd(X_train, X_test, y_train, y_test, mlb_classes):
+    param_grid = {
+        'estimator__alpha': np.logspace(-5, -1, num=50),
+    }
+    model = OneVsRestClassifier(SGDClassifier(class_weight='balanced', random_state=761))
+    model_tuning = GridSearchCV(
+        model,
+        param_grid=param_grid,
+        scoring=make_scorer(hamming_loss, greater_is_better=False),
+        cv=3,
+        n_jobs=2,
+        verbose=1,
+    )
+    model_tuning.fit(X_train, y_train)
+    y_test_pred = model_tuning.predict(X_test)
+
+    print model_tuning.best_params_
+    print 'hamming loss: %.3f' % hamming_loss(y_test, y_test_pred)
+    print classification_report(y_train, model_tuning.predict(X_train), target_names=mlb_classes, digits=3)
+    print classification_report(y_test, y_test_pred, target_names=mlb_classes, digits=3)
+
+    return (classification_report(y_train, model_tuning.predict(X_train), target_names=mlb_classes),
+            classification_report(y_test, model_tuning.predict(X_test), target_names=mlb_classes))
+
+
+def random_forest(X_test, X_train, y_test, y_train, mlb_classes):
+    param_grid = {
+        'min_samples_leaf': (1, 2, 50),
+        'max_features': ('auto', 0.2),
+    }
+    model = RandomForestClassifier(n_estimators=50, class_weight='balanced', random_state=761)
+    model_tuning = GridSearchCV(
+        model,
+        param_grid=param_grid,
+        scoring=make_scorer(hamming_loss, greater_is_better=False),
+        cv=3,
+        n_jobs=2,
+        verbose=3,
+    )
+    model_tuning.fit(X_train, y_train)
+    y_test_pred = model_tuning.predict(X_test)
+
+    print model_tuning.best_params_
+    print 'hamming loss: %.3f' % hamming_loss(y_test, y_test_pred)
+    print classification_report(y_train, model_tuning.predict(X_train), target_names=mlb_classes)
+    print classification_report(y_test, y_test_pred, target_names=mlb_classes)
+
+
 def main():
     # load TMDB movies dataset
     tmdb_movies = load_part(root_folder + '/data/tmdb_info.pickle')
@@ -190,9 +242,12 @@ def main():
     print np.shape(X_train)
     print np.shape(X_test)
 
-    evaluate_baseline(X_train, X_test, y_train, y_test, cast_mlb_classes, 'stratified')
-    evaluate_baseline(X_train, X_test, y_train, y_test, cast_mlb_classes, 'uniform')
-    evaluate_baseline(X_train, X_test, y_train, y_test, cast_mlb_classes, 'most_frequent')
+    # evaluate_baseline(X_train, X_test, y_train, y_test, cast_mlb_classes, 'stratified')
+    # evaluate_baseline(X_train, X_test, y_train, y_test, cast_mlb_classes, 'uniform')
+    # evaluate_baseline(X_train, X_test, y_train, y_test, cast_mlb_classes, 'most_frequent')
+
+    # sgd(X_train, X_test, y_train, y_test, cast_mlb_classes)
+    random_forest(X_test, X_train, y_test, y_train, cast_mlb_classes)
 
 
 if __name__ == '__main__':
