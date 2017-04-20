@@ -10,7 +10,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import classification_report, accuracy_score, hamming_loss, zero_one_loss, \
-    jaccard_similarity_score, make_scorer, f1_score
+    jaccard_similarity_score, f1_score
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -193,6 +193,9 @@ def random_forest(X_test, X_train, y_test, y_train, mlb_classes):
     print 'hamming loss: %.3f' % hamming_loss(y_test, y_test_pred)
     print classification_report(y_train, model_tuning.predict(X_train), target_names=mlb_classes)
     print classification_report(y_test, y_test_pred, target_names=mlb_classes)
+
+    return (classification_report(y_train, model_tuning.predict(X_train), target_names=mlb_classes),
+            classification_report(y_test, model_tuning.predict(X_test), target_names=mlb_classes))
 
 
 def main():
