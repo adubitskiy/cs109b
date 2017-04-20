@@ -4,8 +4,10 @@ import numpy as np
 import pandas as pd
 from nltk.corpus import stopwords
 from scipy import sparse
+from sklearn.dummy import DummyClassifier
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import classification_report, accuracy_score, hamming_loss, zero_one_loss, jaccard_similarity_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MultiLabelBinarizer
 
@@ -111,6 +113,28 @@ def prepare_text_data(tmdb_dict, plot_dict, major_genres, sample_tmdb_ids):
     return features, y, mlb.classes_, vectorizer
 
 
+def evaluate_baseline(X_train, X_test, y_train, y_test, mlb_classes, strategy):
+    print strategy
+
+    num_y_columns = y_train.shape[1]
+
+    y_test_pred_list = []
+    for i in xrange(num_y_columns):
+        one_y_train = y_train[:, i]
+        model = DummyClassifier(strategy=strategy)
+        model.fit(X_train, one_y_train)
+        one_y_test_pred = model.predict(X_test)
+        y_test_pred_list.append(one_y_test_pred)
+
+    y_test_pred = np.array(y_test_pred_list).T
+
+    print 'accuracy score: %.3f' % accuracy_score(y_test, y_test_pred)
+    print 'jaccard similarity score: %.3f' % jaccard_similarity_score(y_test, y_test_pred)
+    print 'hamming loss: %.3f' % hamming_loss(y_test, y_test_pred)
+    print 'zero one loss: %.3f' % zero_one_loss(y_test, y_test_pred)
+    print classification_report(y_test, y_test_pred, target_names=mlb_classes)
+
+
 def main():
     # load TMDB movies dataset
     tmdb_movies = load_part(root_folder + '/data/tmdb_info.pickle')
@@ -165,6 +189,10 @@ def main():
 
     print np.shape(X_train)
     print np.shape(X_test)
+
+    evaluate_baseline(X_train, X_test, y_train, y_test, cast_mlb_classes, 'stratified')
+    evaluate_baseline(X_train, X_test, y_train, y_test, cast_mlb_classes, 'uniform')
+    evaluate_baseline(X_train, X_test, y_train, y_test, cast_mlb_classes, 'most_frequent')
 
 
 if __name__ == '__main__':
