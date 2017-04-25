@@ -38,11 +38,14 @@ def populate_data_dir(genre_df):
 
     genre_df.drop(missing_indices, inplace=True)
 
-    num_top_genres = 2
+    num_top_genres = 4
+    print(genre_df['genre'].value_counts())
     top_genres = [name for name, count in genre_df['genre'].value_counts()[:num_top_genres].iteritems()]
     print(top_genres)
 
-    num_movies_per_genre = 64
+    # num_movies_per_genre = 2048
+    num_movies_per_genre = 32
+
     np.random.seed(109)
     data_dir = 'data'
     if os.path.exists(data_dir):
