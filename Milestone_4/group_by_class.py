@@ -44,7 +44,7 @@ def populate_data_dir(genre_df):
     print(top_genres)
 
     # num_movies_per_genre = 2048
-    num_movies_per_genre = 32
+    num_movies_per_genre = 1024
 
     np.random.seed(109)
     data_dir = 'data'
