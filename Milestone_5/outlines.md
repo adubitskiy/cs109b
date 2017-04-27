@@ -1,4 +1,4 @@
-What we need to have:
+# What we need to have:
 
 1) Up-to-date notebooks
 2) README (if anything was changed for the notebooks)
@@ -7,9 +7,9 @@ What we need to have:
 5) zip file with cleaned data
 
 
-Outline for the report:
+# Outline for the report:
 
-Timur's notes:
+## Timur's notes:
 
 1) Data we used. How many samples, how many features, sources. 
 Train, test, validation set sizes.  
@@ -41,7 +41,7 @@ we need to budget and mention only more important stuff.
 9) Important words in the overview/cast/crew analysis.
 
 
-Alex's notes:
+## Alex's notes:
 
 Data collection:
 
@@ -72,7 +72,7 @@ Model comparision: training / testing time, how much data required
 Model performance: results, how to improve
 
 
-Screencast:
+# Screencast:
 
 1) Story. Problem. Alex, Keenan, Timur wanted to go to see a movie but had trouble
 choosing. Alex wanted to see an GenreA movie, Keenan - GenreB but not GenreC, etc.
