@@ -9,6 +9,8 @@ What we need to have:
 
 Outline for the report:
 
+Timur's notes:
+
 1) Data we used. How many samples, how many features, sources. 
 Train, test, validation set sizes.  
 
@@ -37,6 +39,37 @@ genre identification (if we have time)
 we need to budget and mention only more important stuff.
 
 9) Important words in the overview/cast/crew analysis.
+
+
+Alex's notes:
+
+Data collection:
+
+Sources: IMDB, TMDB, random movies, features available
+Challenges: throttling, distributed collection
+
+Dataset:
+
+Features: cast / crew, overview / plot,  posters
+Features we tried but dismissed
+Curse of dimensionality
+Imbalance
+
+Problem:
+
+Predict movie genre
+Model: multiclass vs multilabel, pros and cons
+Classifiers to consider: LR / SVM / Random Forest / CNN
+Classifier we considered and dismissed
+Multilabel support, multiclass support
+How to handle the imbalance (class weights, native resistance)
+PCA or not PCA
+
+Implementation:
+
+What we implemented
+Model comparision: training / testing time, how much data required
+Model performance: results, how to improve
 
 
 Screencast:
