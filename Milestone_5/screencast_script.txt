@@ -1,0 +1,33 @@
+Sunny day in Cambridge. A couple of student walking holding hands, obviously in love. She sees a large movie poster; the title is blocked by some ad put over.
+
+She: Darling, I love this actor! Could we please see the move! It must be a very romantic one!
+Keenan: I am sorry, honey. I don't like romantic movies. They make me very sleepy.
+
+She: Please, if you love me!
+Keenan:  Hmmm. Let me just check something sweetie pie (dialling a number).
+
+Timur: House of data science, Timur speaking.
+Keenan: Hi, Timur.
+
+Timur: Hi Keenan. How can I help?
+Keenan: Could you please save my love?
+
+Timur: Of course! I am a data scientist, I can save anything.
+Keenan: Excellent! Could you please help me to identify a movie genre by the poster.
+
+Timur: Send me the picture (hangs up).
+
+Keenan takes the picture with his mobile phone and sends it to Timur. Almost immediately he receives a text message. Reads it.
+
+Keenan (quietly): It is a romantic comedy.
+Keenan (loudly): You know what darling, let’s go and see the movie! I can do it for you.
+She: You are my prince!
+
+They are going to the movies. Sounds of a horror movie. Keenan dials a number.
+
+Timur: House of data science, Timur speaking.
+Keenan: It was a horror movie, Timur!
+Timur: I am sorry, Keenan, the accuracy is not perfect.
+
+The end.
+
